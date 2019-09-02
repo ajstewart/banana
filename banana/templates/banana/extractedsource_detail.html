@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
 {% load units %}
+{% load utils %}
 
 {% block title %}Extracted Source #{{ object.id }}{% endblock title %}
 
 {% block header %}Extracted source #{{ object.id }}{% endblock %}
 {% block description %}dataset #{{ dataset.id }} in database {{ db_name }}{% endblock %}
+
+{% load static from staticfiles %}
 
 {% block content %}
 
@@ -93,7 +96,19 @@
                     <h3 class="box-title">Extracted source sneak preview</h3>
                 </div><!-- /.box-header -->
                 <div class="box-body">
-                    <img src="{% url 'extractedsource_plot' db_name extractedsource.id %}?size=3">
+                    {% with dataset.id|stringformat:"s" as dataset_id_string %}
+                    {% with extractedsource.id|stringformat:"s" as extractedsource_id_string %}
+                    {% with 'thumbnails/'|add:db_name|add:'/'|add:dataset_id_string|add:'/'|add:extractedsource_id_string|add:'.png' as image_static %}
+                    {% if image_static|file_exists %}
+                    <a href="{% static image_static %}" >
+                    <img src="{% static image_static %}" class="mx-auto d-block" /></a>
+                    {% else %}
+                    <img src="{% static 'no_thumbnail.png' %}" class="mx-auto d-block" width="200" height="200" /></a>
+                    {% endif %}
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+                    <!-- <img src="{% url 'extractedsource_plot' db_name extractedsource.id %}?size=3"> -->
                 </div>
             </div>
         </div>

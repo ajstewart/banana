@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
 {% load units %}
+{% load utils %}
 {% load paginator %}
 {% load tableheader %}
 {% load query_replace %}
 {% load flux_units_dropdown %}
 {% load floatmath %}
 {% load cycle from future %}
+{% load static from staticfiles %}
 
 
 {% block title %}Running Catalog #{{ object.id }}{% endblock title %}
@@ -43,7 +45,11 @@
                                 var wenss = aladin.createImageSurvey('WENSS', 'WENSS', 'http://alasky.u-strasbg.fr/WENSS', 'equatorial', 5, {imgFormat: 'jpg'});
                                 var vlss = aladin.createImageSurvey('VLSSr', 'VLSSr', 'http://alasky.u-strasbg.fr/VLSSr', 'equatorial', 5, {imgFormat: 'png'});
                                 var nvss = aladin.createImageSurvey('NVSS', 'NVSS', 'http://alasky.u-strasbg.fr/NVSS/intensity/', 'equatorial', 5, {imgFormat: 'jpg'});
-                                aladin.setImageSurvey(nvss);
+                                // Enter custom hips below
+                                var racs = aladin.createImageSurvey('RACS', 'RACS', "{% static 'racsHiPS1' %}", 'equatorial', 8, {imgFormat: 'png'});
+                                
+                                //set default survey
+                                aladin.setImageSurvey(racs);
 
                                 var cat = A.catalog({name: '3CR', sourceSize: 18, 'shape': 'triangle', sourceColor: 'blue'});
                                 aladin.addCatalog(cat);
@@ -146,12 +152,40 @@
 
 
         {% if object_list %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box box-solid">
+                    <div class="box-header with-border">
+                        <i class="fa  fa-star"></i>
+                        <h3 class="box-title">Thumbnails</h3>
+                    </div>
+                    <div class="box-body">
+                        {% for assocxtrsource in object_list %}
+                        {% with dataset.id|stringformat:"s" as dataset_id_string %}
+                        {% with assocxtrsource.xtrsrc|stringformat:"s" as assocxtrsource_xtrsrc_string %}
+                        {% with 'thumbnails/'|add:db_name|add:'/'|add:dataset_id_string|add:'/'|add:assocxtrsource_xtrsrc_string|add:'.png' as image_static %}
+                        {% if image_static|file_exists %}
+                        <a href="{% static image_static %}" >
+                        <img src="{% static image_static %}" class="mx-auto d-block" width="300" height="300" /></a>
+                        {% else %}
+                        <img src="{% static 'no_thumbnail.png' %}" class="mx-auto d-block" width="200" height="200" /></a>
+                        {% endif %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+                    
+        
             <div class="row">
                 <div class="col-md-12">
                     <div class="box box-solid">
                         <div class="box-header with-border">
                             <i class="fa  fa-star"></i>
-                            <h3 class="box-title">Lightcurve</h3>
+                            <h3 class="box-title">Lightcurve Details</h3>
                         </div>
                         <div class="box-body">
                             <div class="row">
@@ -267,5 +301,22 @@
     </script>
 
     <script src="{{ STATIC_URL }}lightcurve.js"></script>
+    
+ <script type = "text/javascript">
+    var hoverSize = [500, 500];
+            
+    $('img').hover(function() {
+        $(this).css({
+            height: hoverSize[0],
+            width: hoverSize[1]
+        });
+    }, function() {
+         $(this).css({
+            height: "",
+            width: ""
+        });
+    });
+    </script>
+    
 
 {% endblock content %}

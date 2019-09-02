@@ -19,10 +19,10 @@ lightcurve.forEach(function(entry) {
         url: entry['url'],
         id: entry['id'],
         x: entry['taustart_ts'],
-        y: entry['f_int'],
-        f_int: entry['f_int'],
+        y: entry['f_int']*1000,
+        f_int: entry['f_int']*1000,
         extract_type: entry['extract_type'],
-        f_int_err: entry['f_int_err'],
+        f_int_err: entry['f_int_err']*1000,
         tau_time: entry['tau_time'],
         marker: {
             symbol: symbols[entry['extract_type']]
@@ -33,12 +33,12 @@ lightcurve.forEach(function(entry) {
         url: entry['url'],
         id: entry['id'],
         x: entry['taustart_ts'],
-        y: entry['f_int'],
+        y: entry['f_int']*1000,
         extract_type: entry['extract_type'],
-        f_int: entry['f_int'],
-        f_int_err: entry['f_int_err'],
-        low: entry['f_int'] - entry['f_int_err'],
-        high: entry['f_int'] + entry['f_int_err'],
+        f_int: entry['f_int']*1000,
+        f_int_err: entry['f_int_err']*1000,
+        low: entry['f_int']*1000 - entry['f_int_err']*1000,
+        high: entry['f_int']*1000 + entry['f_int_err']*1000,
         tau_time: entry['tau_time']
     };
 
@@ -73,7 +73,7 @@ for(key in lightcurve_per_band) {
 
     series.push(
             {
-                name: key,
+                name: (key/1e6).toFixed(2)+" MHz",
                 data: lightcurve_per_band[key],
                 marker: {
                     symbol: 'square'
@@ -124,8 +124,8 @@ $(function () {
         tooltip: {
           formatter: function () {
             return '<b></B>Time: </b>' + Highcharts.dateFormat('%Y %b %e %H:%M:%S', this.point.x) +
-                   '<br><b>flux (Jy): </b>' + this.point.f_int +
-                   '<br><b>Integrated Flux Error (Jy): </b>' + this.point.f_int_err +
+                   '<br><b>flux (mJy): </b>' + this.point.f_int +
+                   '<br><b>Integrated Flux Error (mJy): </b>' + this.point.f_int_err +
                    '<br><b>extract_type: </b>' + this.point.extract_type +
                    '<br><b>Integration Time (s): </b>' + this.point.tau_time +
                    '<br><b>extracted source</b>: ' + this.point.id;
@@ -154,7 +154,7 @@ $(function () {
 
         yAxis: {
             title: {
-                text: 'Flux (Jy)'
+                text: 'Flux (mJy)'
             }
         },
 
